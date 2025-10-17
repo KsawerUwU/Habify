@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Habify — офлайн-трекер привычек (cookie only)</title>
+  <meta name="theme-color" content="#0b0c10"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div id="envWarning" class="envwarn hidden">
+    ⚠️ Открыто как <code>file://</code>. Cookie/оффлайн тут не работают. Открой через
+    <code>http://localhost</code> или статический хостинг.
+  </div>
+
+  <!-- Верхняя панель -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">Hf</div>
+      <div class="btext">
+        <div class="title">Habify</div>
+        <div class="subtitle">оффлайн • cookie only</div>
+      </div>
+    </div>
+
+    <nav class="tabs">
+      <button class="tab active" data-page="home">Главная</button>
+      <button class="tab" data-page="stats">Статистика</button>
+      <button class="tab" data-page="gallery">Галерея</button>
+    </nav>
+
+    <div class="toolbar">
+      <button id="btnInfo" class="icon" title="Как работают cookie">ⓘ</button>
+      <button id="btnSettings" class="icon" title="Настройки">⚙️</button>
+      <button id="btnProfile" class="avatar" title="Профиль"><span id="avatarEmoji">🙂</span></button>
+    </div>
+  </header>
+
+  <!-- Основной экран на всю высоту -->
+  <main class="screen">
+    <!-- Главная -->
+    <section id="page-home" class="page show">
+      <div class="hero card">
+        <div class="hero-left">
+          <div class="hello">
+            <span id="helloName">Привет!</span>
+            <span class="muted">Все данные хранятся локально в cookie.</span>
+          </div>
+          <div class="kpis">
+            <div class="kpi"><div class="k">XP</div><div id="xpVal" class="v">0</div></div>
+            <div class="kpi"><div class="k">Привычек</div><div id="habCount" class="v">0</div></div>
+            <div class="kpi"><div class="k">Сегодня</div><div id="doneToday" class="v">0</div></div>
+          </div>
+          <div class="progress">
+            <div class="progress-label">Прогресс недели</div>
+            <div class="bar"><span id="weekBar"></span></div>
+          </div>
+        </div>
+        <div class="hero-right">
+          <img class="ill" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4aa.svg" alt="strength" />
+          <div class="pill">оффлайн</div>
+          <div class="pill">cookie</div>
+          <div class="pill">без БД</div>
+        </div>
+      </div>
+
+      <h2 class="h2">Сегодня</h2>
+      <div id="todayList" class="list"></div>
+      <div id="todayEmpty" class="empty muted">Сегодня пусто. Добавь привычку кнопкой «+».</div>
+    </section>
+
+    <!-- Статистика -->
+    <section id="page-stats" class="page">
+      <div class="grid">
+        <div class="card stat"><div class="label">Лучшая серия</div><div id="bestStreak" class="big">0</div></div>
+        <div class="card stat"><div class="label">Выполнений (14 дней)</div><div id="sum14" class="big">0</div></div>
+        <div class="card stat"><div class="label">Лучший день недели</div><div id="bestDow" class="big">—</div></div>
+      </div>
+      <h2 class="h2">История (14 дней)</h2>
+      <div id="historyBoard" class="history"></div>
+      <div class="hint muted">Нажми «История» на карточке, чтобы изменить любую прошедшую дату.</div>
+    </section>
+
+    <!-- Галерея (офлайн «соцсеть») -->
+    <section id="page-gallery" class="page">
+      <div class="card">
+        <h2>Галерея результатов (офлайн)</h2>
+        <p class="muted">Импортируй строку экспорта друга для просмотра его прогресса локально (на твои данные это не влияет).</p>
+        <div class="row">
+          <textarea id="guestText" placeholder="Вставь строку экспорта друга"></textarea>
+          <button id="btnAddGuest" class="btn primary">Добавить</button>
+        </div>
+      </div>
+      <div id="guestList" class="list"></div>
+      <div id="guestEmpty" class="empty muted">Пока пусто.</div>
+    </section>
+  </main>
+
+  <!-- Плавающая кнопка -->
+  <button id="btnAdd" class="fab" title="Новая привычка">+</button>
+
+  <!-- Диалоги -->
+  <!-- Привычка -->
+  <dialog id="dlgHabit">
+    <form method="dialog" id="habitForm" class="modal">
+      <h3 id="habitTitle">Новая привычка</h3>
+      <label>Название
+        <input id="fName" type="text" maxlength="64" required placeholder="Пить воду"/>
+      </label>
+      <fieldset>
+        <legend>Частота</legend>
+        <label><input type="radio" name="mode" value="daily" checked> Ежедневно</label>
+        <label><input type="radio" name="mode" value="days"> По дням недели</label>
+      </fieldset>
+      <div id="daysSel" class="days">
+        <label><input type="checkbox" value="1" checked> Пн</label>
+        <label><input type="checkbox" value="2" checked> Вт</label>
+        <label><input type="checkbox" value="3" checked> Ср</label>
+        <label><input type="checkbox" value="4" checked> Чт</label>
+        <label><input type="checkbox" value="5" checked> Пт</label>
+        <label><input type="checkbox" value="6"> Сб</label>
+        <label><input type="checkbox" value="0"> Вс</label>
+      </div>
+      <div class="row end">
+        <button class="btn" id="btnCancelHabit" type="button">Отмена</button>
+        <button class="btn primary" id="btnSaveHabit">Сохранить</button>
+      </div>
+      <input type="hidden" id="fId"/>
+    </form>
+  </dialog>
+
+  <!-- История -->
+  <dialog id="dlgHistory">
+    <form class="modal" method="dialog">
+      <h3>История: <span id="histName"></span></h3>
+      <div class="cal-wrap">
+        <label class="muted small">Месяц: <input type="month" id="histMonth"/></label>
+        <div id="calendar" class="calendar"></div>
+      </div>
+      <div class="row">
+        <label>Дата: <input type="date" id="histDate"/></label>
+        <label>Раз: <input type="number" id="histCount" min="0" step="1" value="1"/></label>
+      </div>
+      <div class="row end">
+        <button class="btn" id="btnCancelHistory" type="button">Закрыть</button>
+        <button class="btn primary" id="btnSaveHistory">Сохранить</button>
+      </div>
+      <input type="hidden" id="histHabitId"/>
+    </form>
+  </dialog>
+
+  <!-- Настройки -->
+  <dialog id="dlgSettings">
+    <form class="modal" method="dialog">
+      <h3>Настройки</h3>
+      <div class="row">
+        <label>Тема
+          <select id="theme">
+            <option value="auto">Авто</option>
+            <option value="dark">Тёмная</option>
+            <option value="light">Светлая</option>
+          </select>
+        </label>
+        <label>Ивенты (бонус XP)
+          <select id="eventSelect">
+            <option value="thu2">Спорт по четвергам ×2</option>
+            <option value="none">Без бонусов</option>
+          </select>
+        </label>
+      </div>
+
+      <details class="box">
+        <summary>Экспорт / Импорт</summary>
+        <div class="row wrap">
+          <button id="btnCopyExport" type="button" class="btn">Копировать экспорт</button>
+          <button id="btnDownloadExport" type="button" class="btn">Скачать бэкап</button>
+          <input id="impText" placeholder="Вставь строку экспорта"/>
+          <button id="btnDoImport" type="button" class="btn primary">Импортировать</button>
+        </div>
+      </details>
+
+      <div class="row end">
+        <button class="btn danger" id="btnReset" type="button">Сбросить всё</button>
+        <button class="btn primary">Готово</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Профиль -->
+  <dialog id="dlgProfile">
+    <form class="modal" method="dialog">
+      <h3>Личный кабинет</h3>
+      <div class="row wrap">
+        <label>Имя <input id="profName" maxlength="24" placeholder="Ваше имя"/></label>
+        <div>
+          <div class="muted small">Аватар</div>
+          <div id="avatarPick" class="avatars">
+            <button type="button">🙂</button><button type="button">😎</button><button type="button">🦊</button>
+            <button type="button">🐼</button><button type="button">🐯</button><button type="button">🐧</button>
+          </div>
+        </div>
+      </div>
+      <div class="row end">
+        <button class="btn" type="button" id="btnCancelProfile">Отмена</button>
+        <button class="btn primary" id="btnSaveProfile">Сохранить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Инфо про cookie -->
+  <dialog id="dlgInfo">
+    <form class="modal" method="dialog">
+      <h3>Как работают cookie в Habify</h3>
+      <ol>
+        <li>Данные только в <b>cookie</b> вашего браузера.</li>
+        <li>Ничего не отправляется на сервер.</li>
+        <li>Открывайте сайт по <b>http(s)</b>, а не <code>file://</code>.</li>
+        <li>Экспорт — строка/файл, делится вручную.</li>
+      </ol>
+      <div class="row end"><button class="btn primary">Понятно</button></div>
+    </form>
+  </dialog>
+
+  <!-- Онбординг (первый запуск) -->
+  <dialog id="dlgOnboard">
+    <form class="modal" method="dialog">
+      <h3>Добро пожаловать в Habify 👋</h3>
+      <ol>
+        <li>Нажми <b>+</b>, чтобы создать привычку (ежедневно или по дням).</li>
+        <li>Отмечай выполнение <b>− / +</b> — можно несколько раз за день.</li>
+        <li>Прошлые дни — через кнопку <b>История</b> (удобный календарь).</li>
+        <li>XP — валюта: бонус ×2 по четвергам (можно отключить в ⚙️).</li>
+        <li>Данные оффлайн, хранятся в <b>cookie</b>; экспорт/импорт — в настройках.</li>
+      </ol>
+      <label class="muted small"><input type="checkbox" id="onbDont"> Больше не показывать</label>
+      <div class="row end"><button class="btn primary">Начать</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+  <button id="btnTips" class="tips-btn" title="Подсказки">?</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
