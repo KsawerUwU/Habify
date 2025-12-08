@@ -1,4 +1,5 @@
-/* Habify — офлайн, cookie-only. Исправлено: переключение вкладок, стабильные Статистика/Галерея, светлая тема, онбординг, PWA */
+/* Habify — офлайн, cookie-only.
+   Добавлено: Цитата дня (type.fit API) + DiceBear-аватары для профиля и гостей. */
 (() => {
   // ===== Константы =====
   const COOKIE_NAME = "habify";
@@ -12,12 +13,11 @@
   const todayKey = () => keyOf(new Date());
   const DOW = ["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];
 
-  // ===== Предупреждение о file:// =====
   const isFile = location.protocol === "file:";
   if (isFile) byId("envWarning")?.classList.remove("hidden");
 
-  // ===== Cookie utils =====
   const COOKIES_OK = !isFile;
+
   function setCookie(name,val,days){
     if(!COOKIES_OK) return;
     const exp = new Date(Date.now()+days*864e5).toUTCString();
@@ -43,7 +43,6 @@
     guests:[]            // [{name, avatar, data}]
   };
 
-  // сериализация
   function encode(){
     const obj = {
       t:state.theme, x:state.xp, f:state.firstRun, e:state.event,
@@ -78,9 +77,10 @@
   applyTheme();
   updateProfileUI();
   wireNav();
-  switchPage("home");  // гарантируем стартовую
+  switchPage("home");
   renderAll();
   maybeOnboard();
+  fetchQuoteOfTheDay();
 
   // ===== Переключение страниц =====
   function switchPage(id){
@@ -94,7 +94,6 @@
 
   // ===== Навигация и действия =====
   function wireNav(){
-    // делегирование кликов по вкладкам
     const tabsHost = document.querySelector(".tabs");
     tabsHost?.addEventListener("click",(e)=>{
       const btn = e.target.closest(".tab");
@@ -112,12 +111,10 @@
     byId("btnCancelProfile")?.addEventListener("click", ()=> byId("dlgProfile").close());
     byId("btnSaveProfile")?.addEventListener("click", saveProfile);
 
-    // Привычка
     byId("btnCancelHabit")?.addEventListener("click", ()=> byId("dlgHabit").close());
     byId("btnSaveHabit")?.addEventListener("click", saveHabit);
     byId("dlgHabit")?.addEventListener("change", e=>{ if(e.target.name==="mode") toggleDays(); });
 
-    // Настройки
     byId("btnReset")?.addEventListener("click", ()=>{
       if(!confirm("Удалить все данные?")) return;
       delCookie(COOKIE_NAME);
@@ -142,7 +139,6 @@
       catch{ alert("Неверная строка экспорта"); }
     });
 
-    // Галерея
     byId("btnAddGuest")?.addEventListener("click", ()=>{
       const s = (byId("guestText")?.value||"").trim(); if(!s) return;
       try{
@@ -164,14 +160,14 @@
       const dlg = byId("dlgOnboard");
       const dont = byId("onbDont");
       dlg?.addEventListener("close", ()=>{
-        state.firstRun = !(dont?.checked); // показывать снова, если не чекнули
+        state.firstRun = !(dont?.checked);
         save();
       });
       dlg?.showModal();
     }
   }
 
-  // ===== Профиль =====
+  // ===== Профиль и DiceBear =====
   function openProfile(){
     byId("profName").value = state.profile.name || "";
     document.querySelectorAll("#avatarPick button").forEach(b=>{
@@ -187,6 +183,13 @@
   function updateProfileUI(){
     byId("avatarEmoji").textContent = state.profile.avatar || "🙂";
     byId("helloName").textContent = state.profile.name ? `Привет, ${state.profile.name}!` : "Привет!";
+
+    // DiceBear-аватар предпросмотра
+    const img = byId("profileAvatarImg");
+    if (img){
+      const seed = encodeURIComponent(state.profile.name || "Habify User");
+      img.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`;
+    }
   }
 
   // ===== Тема / Настройки =====
@@ -203,7 +206,7 @@
     if (ev){ ev.value = state.event; ev.onchange = ()=>{ state.event = ev.value; recalcXP(); renderAll(); save(); }; }
   }
 
-  // ===== Модель привычек =====
+  // ===== Привычки =====
   function openNew(){
     const dlg = byId("dlgHabit");
     byId("fId").value=""; byId("fName").value="";
@@ -229,10 +232,8 @@
 
   function isPlanned(h, dow){ return h.mode==="daily" ? true : (h.days||[]).includes(dow); }
 
-  // бонусы XP
   function xpMultiplierFor(date){ return (state.event==="thu2" && date.getDay()===4) ? 2 : 1; }
 
-  // корректировка «сегодня»
   function adjustToday(h, delta){
     const k = todayKey();
     const cur = h.history[k]||0;
@@ -242,7 +243,6 @@
     recalcXP(); save(); renderAll();
   }
 
-  // серия
   function calcStreak(h){
     let s=0; const t=new Date();
     for(let i=0;i<400;i++){
@@ -253,7 +253,6 @@
     return s;
   }
 
-  // полный перерасчёт XP — «бетонно»
   function recalcXP(){
     let sum=0;
     state.habits.forEach(h=>{
@@ -380,7 +379,7 @@
     const cal = byId("calendar"); cal.innerHTML="";
     const [yy,mm] = (byId("histMonth").value||"").split("-");
     const year=+yy||new Date().getFullYear(), month=(+mm||1)-1;
-    const first = new Date(year,month,1); const startIdx=(first.getDay()+6)%7; // Monday-based
+    const first = new Date(year,month,1); const startIdx=(first.getDay()+6)%7;
     const daysIn = new Date(year,month+1,0).getDate();
     let day=1; const total=42;
     for(let i=0;i<total;i++){
@@ -399,7 +398,6 @@
       } else cell.classList.add("dim");
       cal.append(cell);
     }
-    // дефолт
     const today = new Date();
     if (today.getFullYear()===year && today.getMonth()===month){
       byId("histDate").value = `${year}-${pad(month+1)}-${pad(today.getDate())}`;
@@ -427,7 +425,7 @@
     state.habits.forEach(h=>{ const row=el("div","habit"); row.append(el("div","name",h.name), buildMiniCalendar(h)); board.append(row); });
   }
 
-  // ===== Галерея =====
+  // ===== Галерея + DiceBear =====
   function renderGuests(){
     const box = byId("guestList"), empty = byId("guestEmpty");
     box.innerHTML="";
@@ -435,11 +433,17 @@
     empty.style.display="none";
     state.guests.forEach(g=>{
       const card = el("div","guest");
-      const ava = el("div","", g.avatar || "👤"); ava.style.fontSize="20px";
+      const img = document.createElement("img");
+      img.className = "gavatar";
+      const seed = encodeURIComponent(g.name || "Guest");
+      img.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`;
+
       const title = el("div","name", g.name || "Гость");
       const meta = el("div","muted", `Привычек: ${Array.isArray(g.data?.h)?g.data.h.length:0}, XP: ${calcXPFromSnapshot(g.data)}`);
       const del = button("Удалить", ()=>{ state.guests = state.guests.filter(x=>x!==g); save(); renderGuests(); });
-      card.append(ava,title,meta,del); box.append(card);
+
+      card.append(img,title,meta,del);
+      box.append(card);
     });
   }
   function calcXPFromSnapshot(snap){
@@ -448,6 +452,37 @@
       let xp=0; (snap?.h||[]).forEach(h=>{ Object.entries(h.hi||{}).forEach(([k,c])=>{ xp += (c||0)*BASE_XP*mult(new Date(k)); }); });
       return xp;
     }catch{ return 0; }
+  }
+
+  // ===== Цитата дня (type.fit) =====
+  const fallbackQuotes = [
+    {text:"Маленькие шаги каждый день сильнее, чем один рывок раз в год.",author:"Habify"},
+    {text:"Ты не обязан быть идеальным, чтобы быть стабильным.",author:"Habify"},
+    {text:"Привычки строят будущее, пока ты занят своими делами.",author:"Habify"}
+  ];
+  function setQuote(text, author){
+    const qt = byId("quoteText");
+    const qa = byId("quoteAuthor");
+    if (qt) qt.textContent = text || "Сегодня без цитат, но привычки сами себя не сделают 😏";
+    if (qa) qa.textContent = author ? `— ${author}` : "";
+  }
+  function fetchQuoteOfTheDay(){
+    if (isFile) { // при file:// fetch всё равно часто ломается
+      const q = fallbackQuotes[Math.floor(Math.random()*fallbackQuotes.length)];
+      setQuote(q.text, q.author);
+      return;
+    }
+    fetch("https://type.fit/api/quotes")
+      .then(r=>r.json())
+      .then(list=>{
+        if (!Array.isArray(list) || !list.length) throw new Error("no quotes");
+        const q = list[Math.floor(Math.random()*list.length)];
+        setQuote(q.text, q.author||"Неизвестный автор");
+      })
+      .catch(()=>{
+        const q = fallbackQuotes[Math.floor(Math.random()*fallbackQuotes.length)];
+        setQuote(q.text, q.author);
+      });
   }
 
   // ===== Helpers =====

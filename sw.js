@@ -1,5 +1,5 @@
 // Простой оффлайн-кэш для статического хостинга
-const CACHE = "habify-v2"; // обновленная версия кэша
+const CACHE = "habify-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -14,7 +14,11 @@ self.addEventListener("install", (e) => {
 });
 
 self.addEventListener("activate", (e) => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))
+    )
+  );
   self.clients.claim();
 });
 

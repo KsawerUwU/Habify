@@ -33,7 +33,9 @@
     <div class="toolbar">
       <button id="btnInfo" class="icon" title="Как работают cookie">ⓘ</button>
       <button id="btnSettings" class="icon" title="Настройки">⚙️</button>
-      <button id="btnProfile" class="avatar" title="Профиль"><span id="avatarEmoji">🙂</span></button>
+      <button id="btnProfile" class="avatar" title="Профиль">
+        <span id="avatarEmoji">🙂</span>
+      </button>
     </div>
   </header>
 
@@ -56,7 +58,15 @@
             <div class="progress-label">Прогресс недели</div>
             <div class="bar"><span id="weekBar"></span></div>
           </div>
+
+          <!-- Цитата дня -->
+          <div class="quote-box">
+            <div class="quote-label">Цитата дня</div>
+            <div id="quoteText" class="quote-text">Загружаем вдохновение…</div>
+            <div id="quoteAuthor" class="quote-author"></div>
+          </div>
         </div>
+
         <div class="hero-right">
           <img class="ill" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4aa.svg" alt="strength" />
           <div class="pill">оффлайн</div>
@@ -86,7 +96,10 @@
     <section id="page-gallery" class="page">
       <div class="card">
         <h2>Галерея результатов (офлайн)</h2>
-        <p class="muted">Импортируй строку экспорта друга для просмотра его прогресса локально (на твои данные это не влияет).</p>
+        <p class="muted">
+          Импортируй строку экспорта друга для просмотра его прогресса локально
+          (на твои данные это не влияет).
+        </p>
         <div class="row">
           <textarea id="guestText" placeholder="Вставь строку экспорта друга"></textarea>
           <button id="btnAddGuest" class="btn primary">Добавить</button>
@@ -194,11 +207,15 @@
       <div class="row wrap">
         <label>Имя <input id="profName" maxlength="24" placeholder="Ваше имя"/></label>
         <div>
-          <div class="muted small">Аватар</div>
+          <div class="muted small">Аватар (эмодзи)</div>
           <div id="avatarPick" class="avatars">
             <button type="button">🙂</button><button type="button">😎</button><button type="button">🦊</button>
             <button type="button">🐼</button><button type="button">🐯</button><button type="button">🐧</button>
           </div>
+        </div>
+        <div class="avatar-preview">
+          <div class="muted small">DiceBear-аватар</div>
+          <img id="profileAvatarImg" alt="avatar preview">
         </div>
       </div>
       <div class="row end">
@@ -229,9 +246,9 @@
       <ol>
         <li>Нажми <b>+</b>, чтобы создать привычку (ежедневно или по дням).</li>
         <li>Отмечай выполнение <b>− / +</b> — можно несколько раз за день.</li>
-        <li>Прошлые дни — через кнопку <b>История</b> (удобный календарь).</li>
+        <li>Прошлые дни — через кнопку <b>История</b> (календарь).</li>
         <li>XP — валюта: бонус ×2 по четвергам (можно отключить в ⚙️).</li>
-        <li>Данные оффлайн, хранятся в <b>cookie</b>; экспорт/импорт — в настройках.</li>
+        <li>Данные оффлайн, в <b>cookie</b>; экспорт/импорт — в настройках.</li>
       </ol>
       <label class="muted small"><input type="checkbox" id="onbDont"> Больше не показывать</label>
       <div class="row end"><button class="btn primary">Начать</button></div>
