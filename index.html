@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Habify — офлайн-трекер привычек (cookie only)</title>
-  <meta name="theme-color" content="#0b0c10"/>
+  <meta name="theme-color" content="#020617"/>
   <link rel="manifest" href="manifest.json"/>
   <link rel="stylesheet" href="styles.css"/>
 </head>
@@ -34,12 +34,12 @@
       <button id="btnInfo" class="icon" title="Как работают cookie">ⓘ</button>
       <button id="btnSettings" class="icon" title="Настройки">⚙️</button>
       <button id="btnProfile" class="avatar" title="Профиль">
-        <span id="avatarEmoji">🙂</span>
+        <img id="avatarTop" class="avatar-top" alt="avatar">
       </button>
     </div>
   </header>
 
-  <!-- Основной экран на всю высоту -->
+  <!-- Основной экран -->
   <main class="screen">
     <!-- Главная -->
     <section id="page-home" class="page show">
@@ -66,13 +66,6 @@
             <div id="quoteAuthor" class="quote-author"></div>
           </div>
         </div>
-
-        <div class="hero-right">
-          <img class="ill" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4aa.svg" alt="strength" />
-          <div class="pill">оффлайн</div>
-          <div class="pill">cookie</div>
-          <div class="pill">без БД</div>
-        </div>
       </div>
 
       <h2 class="h2">Сегодня</h2>
@@ -97,7 +90,7 @@
       <div class="card">
         <h2>Галерея результатов (офлайн)</h2>
         <p class="muted">
-          Импортируй строку экспорта друга для просмотра его прогресса локально
+          Импортируй строку экспорта друга или его QR-код для просмотра прогресса локально
           (на твои данные это не влияет).
         </p>
         <div class="row">
@@ -188,8 +181,18 @@
         <div class="row wrap">
           <button id="btnCopyExport" type="button" class="btn">Копировать экспорт</button>
           <button id="btnDownloadExport" type="button" class="btn">Скачать бэкап</button>
+          <button id="btnShowQR" type="button" class="btn">Показать QR</button>
+        </div>
+
+        <div class="row wrap">
           <input id="impText" placeholder="Вставь строку экспорта"/>
           <button id="btnDoImport" type="button" class="btn primary">Импортировать</button>
+        </div>
+
+        <div class="row wrap">
+          <input id="qrFile" type="file" accept="image/*" class="hidden"/>
+          <button id="btnImportQRFile" type="button" class="btn">Импорт из QR-файла</button>
+          <button id="btnScanQR" type="button" class="btn">Сканировать QR камерой</button>
         </div>
       </details>
 
@@ -206,15 +209,8 @@
       <h3>Личный кабинет</h3>
       <div class="row wrap">
         <label>Имя <input id="profName" maxlength="24" placeholder="Ваше имя"/></label>
-        <div>
-          <div class="muted small">Аватар (эмодзи)</div>
-          <div id="avatarPick" class="avatars">
-            <button type="button">🙂</button><button type="button">😎</button><button type="button">🦊</button>
-            <button type="button">🐼</button><button type="button">🐯</button><button type="button">🐧</button>
-          </div>
-        </div>
         <div class="avatar-preview">
-          <div class="muted small">DiceBear-аватар</div>
+          <div class="muted small">Аватар (DiceBear по нику)</div>
           <img id="profileAvatarImg" alt="avatar preview">
         </div>
       </div>
@@ -230,16 +226,16 @@
     <form class="modal" method="dialog">
       <h3>Как работают cookie в Habify</h3>
       <ol>
-        <li>Данные только в <b>cookie</b> вашего браузера.</li>
+        <li>Данные только в <b>cookie</b> твоего браузера.</li>
         <li>Ничего не отправляется на сервер.</li>
-        <li>Открывайте сайт по <b>http(s)</b>, а не <code>file://</code>.</li>
-        <li>Экспорт — строка/файл, делится вручную.</li>
+        <li>Открывай сайт по <b>http(s)</b>, а не <code>file://</code>.</li>
+        <li>Экспорт — строка, файл или QR-код. Всё остаётся у тебя.</li>
       </ol>
       <div class="row end"><button class="btn primary">Понятно</button></div>
     </form>
   </dialog>
 
-  <!-- Онбординг (первый запуск) -->
+  <!-- Онбординг -->
   <dialog id="dlgOnboard">
     <form class="modal" method="dialog">
       <h3>Добро пожаловать в Habify 👋</h3>
@@ -248,16 +244,43 @@
         <li>Отмечай выполнение <b>− / +</b> — можно несколько раз за день.</li>
         <li>Прошлые дни — через кнопку <b>История</b> (календарь).</li>
         <li>XP — валюта: бонус ×2 по четвергам (можно отключить в ⚙️).</li>
-        <li>Данные оффлайн, в <b>cookie</b>; экспорт/импорт — в настройках.</li>
+        <li>Данные оффлайн в <b>cookie</b>; экспорт/импорт — строка, файл или QR.</li>
       </ol>
       <label class="muted small"><input type="checkbox" id="onbDont"> Больше не показывать</label>
       <div class="row end"><button class="btn primary">Начать</button></div>
     </form>
   </dialog>
 
+  <!-- Диалог QR-экспорта -->
+  <dialog id="dlgQRExport">
+    <form class="modal" method="dialog">
+      <h3>QR-код экспорта</h3>
+      <p class="muted small">Отсканируй этим кодом свои данные с другого устройства.</p>
+      <div id="qrExportContainer" class="qr-box"></div>
+      <div class="row end">
+        <button class="btn primary" id="btnCloseQRExport">Закрыть</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Диалог сканирования QR камерой -->
+  <dialog id="dlgQRScan">
+    <form class="modal" method="dialog">
+      <h3>Сканирование QR-кода</h3>
+      <p class="muted small">Наведи камеру на QR с экспортом Habify.</p>
+      <video id="qrVideo" class="qr-video" autoplay muted playsinline></video>
+      <div class="row end">
+        <button class="btn primary" type="button" id="btnCloseQRScan">Отмена</button>
+      </div>
+    </form>
+  </dialog>
+
   <div id="toast" class="toast"></div>
   <button id="btnTips" class="tips-btn" title="Подсказки">?</button>
 
+  <!-- Локальные библиотеки для QR -->
+  <script src="qrcode.min.js"></script>
+  <script src="jsqr.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
