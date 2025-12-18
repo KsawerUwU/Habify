@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <title>Habify — офлайн-трекер привычек (cookie only)</title>
+  <title>Habify — офлайн-трекер привычек</title>
   <meta name="theme-color" content="#020617"/>
   <link rel="manifest" href="manifest.json"/>
   <link rel="stylesheet" href="styles.css"/>
@@ -14,13 +14,12 @@
     <code>http://localhost</code> или статический хостинг.
   </div>
 
-  <!-- Верхняя панель -->
   <header class="topbar">
     <div class="brand">
       <div class="logo">Hf</div>
       <div class="btext">
         <div class="title">Habify</div>
-        <div class="subtitle">оффлайн • cookie only</div>
+        <div class="subtitle">оффлайн трекер</div>
       </div>
     </div>
 
@@ -31,7 +30,7 @@
     </nav>
 
     <div class="toolbar">
-      <button id="btnInfo" class="icon" title="Как работают cookie">ⓘ</button>
+      <button id="btnInfo" class="icon" title="Инфо">ⓘ</button>
       <button id="btnSettings" class="icon" title="Настройки">⚙️</button>
       <button id="btnProfile" class="avatar" title="Профиль">
         <img id="avatarTop" class="avatar-top" alt="avatar">
@@ -39,15 +38,12 @@
     </div>
   </header>
 
-  <!-- Основной экран -->
   <main class="screen">
-    <!-- Главная -->
     <section id="page-home" class="page show">
       <div class="hero card">
         <div class="hero-left">
           <div class="hello">
             <span id="helloName">Привет!</span>
-            <span class="muted">Все данные хранятся локально в cookie.</span>
           </div>
           <div class="kpis">
             <div class="kpi"><div class="k">XP</div><div id="xpVal" class="v">0</div></div>
@@ -59,7 +55,6 @@
             <div class="bar"><span id="weekBar"></span></div>
           </div>
 
-          <!-- Цитата дня -->
           <div class="quote-box">
             <div class="quote-label">Цитата дня</div>
             <div id="quoteText" class="quote-text">Загружаем вдохновение…</div>
@@ -73,7 +68,6 @@
       <div id="todayEmpty" class="empty muted">Сегодня пусто. Добавь привычку кнопкой «+».</div>
     </section>
 
-    <!-- Статистика -->
     <section id="page-stats" class="page">
       <div class="grid">
         <div class="card stat"><div class="label">Лучшая серия</div><div id="bestStreak" class="big">0</div></div>
@@ -85,29 +79,24 @@
       <div class="hint muted">Нажми «История» на карточке, чтобы изменить любую прошедшую дату.</div>
     </section>
 
-    <!-- Галерея (офлайн «соцсеть») -->
     <section id="page-gallery" class="page">
       <div class="card">
         <h2>Галерея результатов (офлайн)</h2>
         <p class="muted">
-          Импортируй строку экспорта друга или его QR-код для просмотра прогресса локально
-          (на твои данные это не влияет).
+          Импортируй строку экспорта друга или его QR-код для просмотра прогресса локально.
         </p>
-        <div class="row">
-          <textarea id="guestText" placeholder="Вставь строку экспорта друга"></textarea>
-          <button id="btnAddGuest" class="btn primary">Добавить</button>
+        <div class="row column-mobile">
+          <textarea id="guestText" placeholder="Вставь строку экспорта друга (начинается с HABIFY1|...)"></textarea>
         </div>
+        <button id="btnAddGuest" class="btn primary full-width">Добавить в галерею</button>
       </div>
       <div id="guestList" class="list"></div>
       <div id="guestEmpty" class="empty muted">Пока пусто.</div>
     </section>
   </main>
 
-  <!-- Плавающая кнопка -->
   <button id="btnAdd" class="fab" title="Новая привычка">+</button>
 
-  <!-- Диалоги -->
-  <!-- Привычка -->
   <dialog id="dlgHabit">
     <form method="dialog" id="habitForm" class="modal">
       <h3 id="habitTitle">Новая привычка</h3>
@@ -120,13 +109,13 @@
         <label><input type="radio" name="mode" value="days"> По дням недели</label>
       </fieldset>
       <div id="daysSel" class="days">
-        <label><input type="checkbox" value="1" checked> Пн</label>
-        <label><input type="checkbox" value="2" checked> Вт</label>
-        <label><input type="checkbox" value="3" checked> Ср</label>
-        <label><input type="checkbox" value="4" checked> Чт</label>
-        <label><input type="checkbox" value="5" checked> Пт</label>
-        <label><input type="checkbox" value="6"> Сб</label>
-        <label><input type="checkbox" value="0"> Вс</label>
+        <label><input type="checkbox" value="1" checked><span>Пн</span></label>
+        <label><input type="checkbox" value="2" checked><span>Вт</span></label>
+        <label><input type="checkbox" value="3" checked><span>Ср</span></label>
+        <label><input type="checkbox" value="4" checked><span>Чт</span></label>
+        <label><input type="checkbox" value="5" checked><span>Пт</span></label>
+        <label><input type="checkbox" value="6"><span>Сб</span></label>
+        <label><input type="checkbox" value="0"><span>Вс</span></label>
       </div>
       <div class="row end">
         <button class="btn" id="btnCancelHabit" type="button">Отмена</button>
@@ -136,7 +125,6 @@
     </form>
   </dialog>
 
-  <!-- История -->
   <dialog id="dlgHistory">
     <form class="modal" method="dialog">
       <h3>История: <span id="histName"></span></h3>
@@ -156,10 +144,13 @@
     </form>
   </dialog>
 
-  <!-- Настройки -->
   <dialog id="dlgSettings">
     <form class="modal" method="dialog">
-      <h3>Настройки</h3>
+      <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
+        <h3 style="margin:0">Настройки</h3>
+        <button id="btnCloseSettings" type="button" class="icon" style="border:none; background:transparent; font-size:18px;">✕</button>
+      </div>
+      
       <div class="row">
         <label>Тема
           <select id="theme">
@@ -203,7 +194,6 @@
     </form>
   </dialog>
 
-  <!-- Профиль -->
   <dialog id="dlgProfile">
     <form class="modal" method="dialog">
       <h3>Личный кабинет</h3>
@@ -214,6 +204,16 @@
           <img id="profileAvatarImg" alt="avatar preview">
         </div>
       </div>
+
+      <div class="achievements-box" style="margin-top:15px; border-top:1px solid rgba(8,47,73,.9); padding-top:10px;">
+        <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <label class="muted small">Достижения</label>
+          <span id="achLevel" class="streak" style="font-size:12px">Уровень 1</span>
+        </div>
+        <div id="achList" class="row wrap" style="gap:6px;">
+          </div>
+      </div>
+
       <div class="row end">
         <button class="btn" type="button" id="btnCancelProfile">Отмена</button>
         <button class="btn primary" id="btnSaveProfile">Сохранить</button>
@@ -221,12 +221,11 @@
     </form>
   </dialog>
 
-  <!-- Инфо про cookie -->
   <dialog id="dlgInfo">
     <form class="modal" method="dialog">
-      <h3>Как работают cookie в Habify</h3>
+      <h3>О приложении</h3>
       <ol>
-        <li>Данные только в <b>cookie</b> твоего браузера.</li>
+        <li>Данные хранятся локально в <b>cookie</b>.</li>
         <li>Ничего не отправляется на сервер.</li>
         <li>Открывай сайт по <b>http(s)</b>, а не <code>file://</code>.</li>
         <li>Экспорт — строка, файл или QR-код. Всё остаётся у тебя.</li>
@@ -235,27 +234,27 @@
     </form>
   </dialog>
 
-  <!-- Онбординг -->
   <dialog id="dlgOnboard">
     <form class="modal" method="dialog">
       <h3>Добро пожаловать в Habify 👋</h3>
       <ol>
-        <li>Нажми <b>+</b>, чтобы создать привычку (ежедневно или по дням).</li>
-        <li>Отмечай выполнение <b>− / +</b> — можно несколько раз за день.</li>
-        <li>Прошлые дни — через кнопку <b>История</b> (календарь).</li>
-        <li>XP — валюта: бонус ×2 по четвергам (можно отключить в ⚙️).</li>
-        <li>Данные оффлайн в <b>cookie</b>; экспорт/импорт — строка, файл или QR.</li>
+        <li>Нажми <b>+</b>, чтобы создать привычку.</li>
+        <li>Отмечай выполнение <b>− / +</b>.</li>
+        <li>Прошлые дни — через кнопку <b>История</b>.</li>
+        <li>XP — валюта: бонус ×2 по четвергам.</li>
+        <li>Данные оффлайн; делись прогрессом через QR.</li>
       </ol>
-      <label class="muted small"><input type="checkbox" id="onbDont"> Больше не показывать</label>
+      <label class="muted small" style="display:flex; align-items:center; cursor:pointer">
+        <input type="checkbox" id="onbDont" class="styled-checkbox"> Больше не показывать
+      </label>
       <div class="row end"><button class="btn primary">Начать</button></div>
     </form>
   </dialog>
 
-  <!-- Диалог QR-экспорта -->
   <dialog id="dlgQRExport">
     <form class="modal" method="dialog">
       <h3>QR-код экспорта</h3>
-      <p class="muted small">Отсканируй этим кодом свои данные с другого устройства.</p>
+      <p class="muted small">Отсканируй этот код с другого устройства.</p>
       <div id="qrExportContainer" class="qr-box"></div>
       <div class="row end">
         <button class="btn primary" id="btnCloseQRExport">Закрыть</button>
@@ -263,7 +262,6 @@
     </form>
   </dialog>
 
-  <!-- Диалог сканирования QR камерой -->
   <dialog id="dlgQRScan">
     <form class="modal" method="dialog">
       <h3>Сканирование QR-кода</h3>
@@ -278,7 +276,6 @@
   <div id="toast" class="toast"></div>
   <button id="btnTips" class="tips-btn" title="Подсказки">?</button>
 
-  <!-- Локальные библиотеки для QR -->
   <script src="qrcode.min.js"></script>
   <script src="jsqr.min.js"></script>
   <script src="script.js"></script>

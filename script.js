@@ -155,6 +155,9 @@
 
     byId("btnAdd")?.addEventListener("click", openNewHabit);
     byId("btnSettings")?.addEventListener("click", () => { fillSettings(); byId("dlgSettings").showModal(); });
+    // Новая кнопка закрытия настроек
+    byId("btnCloseSettings")?.addEventListener("click", () => byId("dlgSettings").close());
+    
     byId("btnInfo")?.addEventListener("click", () => byId("dlgInfo").showModal());
 
     byId("btnProfile")?.addEventListener("click", openProfile);
@@ -269,6 +272,7 @@
   function openProfile() {
     byId("profName").value = state.profile.name || "";
     updateProfileUI();
+    updateAchievements(); // <-- Обновляем ачивки
     byId("dlgProfile").showModal();
   }
   function saveProfile(e) {
@@ -286,6 +290,36 @@
     const img = byId("profileAvatarImg");
     if (top) top.src = url;
     if (img) img.src = url;
+  }
+
+  // Логика ачивок
+  function updateAchievements() {
+    const box = byId("achList");
+    if (!box) return;
+    box.innerHTML = "";
+
+    const xp = state.xp;
+    const lvl = Math.floor(Math.sqrt(xp) / 5) + 1;
+    byId("achLevel").textContent = `Уровень ${lvl} (${xp} XP)`;
+
+    const badges = [
+      { name: "Новичок", desc: "Создал привычку", condition: state.habits.length > 0, icon: "🥚" },
+      { name: "Старт", desc: "Набрал 50 XP", condition: xp >= 50, icon: "🐣" },
+      { name: "Опытный", desc: "Набрал 500 XP", condition: xp >= 500, icon: "🦅" },
+      { name: "Машина", desc: "Набрал 2000 XP", condition: xp >= 2000, icon: "🤖" },
+      { name: "Стрик", desc: "Серия 7 дней", condition: state.habits.some(h => h.streak >= 7), icon: "🔥" },
+      { name: "Киберпанк", desc: "Тёмная тема", condition: state.theme === 'dark', icon: "🕶️" }
+    ];
+
+    badges.forEach(b => {
+      const el = document.createElement("div");
+      el.className = "icon"; // Используем существующий класс icon
+      el.style.opacity = b.condition ? "1" : "0.3";
+      el.style.filter = b.condition ? "none" : "grayscale(1)";
+      el.title = `${b.name}: ${b.desc}`;
+      el.textContent = b.icon;
+      box.append(el);
+    });
   }
 
   /* ---------- Тема ---------- */
